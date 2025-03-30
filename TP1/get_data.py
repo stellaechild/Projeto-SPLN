@@ -1,4 +1,5 @@
 import yaml
+import re
 from sickle import Sickle
 
 # OAI-PMH endpoint: Famalicão (Alberto Sampaio)
@@ -38,14 +39,14 @@ def pretty_print(registo, output_format='text', config=None, registo_num=None):
             'date': {'prefix': 'Date: ', 'format': '{value[0]} - {value[1]}'},
             'format': {'prefix': 'Format: ', 'format': '{value}'},
             'identifier': {'prefix': 'ID: ', 'format': '{value[0]}'},
-            'language':{'prefix': 'Language: ', 'format': '{value[0]}'},
-            'publisher':{'prefix': 'Publisher: ', 'format': '{value[0]}'},
-            'relation':{'prefix': 'Relation: ', 'format': '{value[0]}'},
-            'subject':{'prefix': 'Subject: ', 'format': '{value[0]}'},
-            'type':{'prefix': 'Type: ', 'format': '{value[0]}'},
+            'language': {'prefix': 'Language: ', 'format': '{value[0]}'},
+            'publisher': {'prefix': 'Publisher: ', 'format': '{value[0]}'},
+            'relation': {'prefix': 'Relation: ', 'format': '{value[0]}'},
+            'subject': {'prefix': 'Subject: ', 'format': '{value[0]}'},
+            'type': {'prefix': 'Type: ', 'format': '{value[0]}'},
             'default': {'prefix': '', 'format': '{value}'}
         }
-    
+
     def format_field(field, value):
         """Handle multi-value fields and missing data"""
         if not value:
@@ -57,16 +58,10 @@ def pretty_print(registo, output_format='text', config=None, registo_num=None):
             return str(value)  # Fallback for malformed data
 
     if output_format == 'html':
-        output = [f'<div class="registo" id="registo-{registo_num}">'] if registo_num else ['<div class="registo">']
-        
-        # Header with record number
-        if registo_num:
-            output.append(f'<h3 class="record-title">Record {registo_num}</h3>')
-        
-        # Main content
+        output = ['<div class="registo">']
         output.append('<dl class="registo-metadata">')
         for field, value in registo.items():
-            if value:  # Skip empty fields
+            if value:
                 formatted_value = format_field(field, value)
                 output.append(f'<dt>{config.get(field, config["default"])["prefix"].strip(": ")}</dt>')
                 output.append(f'<dd>{formatted_value}</dd>')
@@ -75,19 +70,21 @@ def pretty_print(registo, output_format='text', config=None, registo_num=None):
     
     elif output_format == 'wiki':
         output = []
-        if registo_num:
-            output.append(f"== Registo {registo_num} ==")
         for field, value in registo.items():
             if value:
                 formatted_value = format_field(field, value)
-                output.append(f"* {config.get(field, config['default'])['prefix']}{formatted_value}")
+                prefix = config.get(field, config['default'])['prefix']
+                output.append(f"* {prefix}{formatted_value}")
         return '\n'.join(output)
     
     elif output_format == 'yaml':
-        return yaml.dump(registo, allow_unicode=True, default_flow_style=False)
+        with open('./TP1/dados_brutos.yaml', 'r', encoding='utf-8') as f:
+            content = f.read()
+        print(content) 
     
     else:
         raise ValueError(f"Unsupported format: {output_format}")
+    
 
 # Salvar os dados num ficheiro HTML
 def save_records_html(registos, filename="registos_output.html"):
