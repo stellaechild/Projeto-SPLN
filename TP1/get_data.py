@@ -30,7 +30,7 @@ save_to_file()
 print("Concluído. Todos os dados encontram-se no ficheiro 'dados_brutos.yaml'.")
 
 
-def pretty_print(registo, output_format='text', config=None):
+def pretty_print(registo, output_format='text', config=None, registo_num=None):
     # função para dar print (pretty) em html, wiki e yaml
     if config is None:
         config = {
@@ -38,24 +38,49 @@ def pretty_print(registo, output_format='text', config=None):
             'date': {'prefix': 'Date: ', 'format': '{value[0]} - {value[1]}'},
             'format': {'prefix': 'Format: ', 'format': '{value}'},
             'identifier': {'prefix': 'ID: ', 'format': '{value[0]}'},
+            'language':{'prefix': 'Language: ', 'format': '{value[0]}'},
+            'publisher':{'prefix': 'Publisher: ', 'format': '{value[0]}'},
+            'relation':{'prefix': 'Relation: ', 'format': '{value[0]}'},
+            'subject':{'prefix': 'Subject: ', 'format': '{value[0]}'},
+            'type':{'prefix': 'Type: ', 'format': '{value[0]}'},
             'default': {'prefix': '', 'format': '{value}'}
         }
     
+    def format_field(field, value):
+        """Handle multi-value fields and missing data"""
+        if not value:
+            return ""
+        field_config = config.get(field, config['default'])
+        try:
+            return field_config['format'].format(value=value)
+        except (IndexError, KeyError):
+            return str(value)  # Fallback for malformed data
+
     if output_format == 'html':
-        output = ['<div class="registo">']
+        output = [f'<div class="registo" id="registo-{registo_num}">'] if registo_num else ['<div class="registo">']
+        
+        # Header with record number
+        if registo_num:
+            output.append(f'<h3 class="record-title">Record {registo_num}</h3>')
+        
+        # Main content
+        output.append('<dl class="registo-metadata">')
         for field, value in registo.items():
-            field_config = config.get(field, config['default'])
-            formatted_value = field_config['format'].format(value=value)
-            output.append(f'<p><strong>{field_config["prefix"]}</strong>{formatted_value}</p>')
-        output.append('</div>')
+            if value:  # Skip empty fields
+                formatted_value = format_field(field, value)
+                output.append(f'<dt>{config.get(field, config["default"])["prefix"].strip(": ")}</dt>')
+                output.append(f'<dd>{formatted_value}</dd>')
+        output.append('</dl></div>')
         return '\n'.join(output)
     
     elif output_format == 'wiki':
         output = []
+        if registo_num:
+            output.append(f"== Registo {registo_num} ==")
         for field, value in registo.items():
-            field_config = config.get(field, config['default'])
-            formatted_value = field_config['format'].format(value=value)
-            output.append(f"* {field_config['prefix']}{formatted_value}")
+            if value:
+                formatted_value = format_field(field, value)
+                output.append(f"* {config.get(field, config['default'])['prefix']}{formatted_value}")
         return '\n'.join(output)
     
     elif output_format == 'yaml':
