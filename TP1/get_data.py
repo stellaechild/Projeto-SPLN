@@ -8,7 +8,7 @@ sickle = Sickle(endpoint)
 dados = {"Registos": []}
 
 def save_to_file():
-    with open("dados_brutos.yaml", "w", encoding="utf-8") as f:
+    with open("./TP1/dados_brutos.yaml", "w", encoding="utf-8") as f:
         yaml.dump(dados, f, allow_unicode=True, default_flow_style=False)
     print("Dados parciais salvos no ficheiro 'dados_brutos.yaml'.")
 
@@ -148,6 +148,6 @@ for registo in dados["Registos"]:
         print("\n--- WIKI ---\n")
         print(pretty_print(registo, 'wiki'))
         registo['date_normalized'] = simplify_date(registo['date'])
-        save_records_html(dados["Registos"], "registos.html")
+        save_records_html(dados["Registos"], "./TP1/registos.html")
 
 
