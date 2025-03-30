@@ -1,5 +1,5 @@
 ---
-title: Trabalho Prático 1
+title: Enunciado do Trabalho Prático 1
 subtitle: SPLN 24-25, mestrado Informática
 authors: Maria Cunha pg54042 | Tomás Campinho pg57742
 ---
