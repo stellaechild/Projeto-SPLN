@@ -12,7 +12,7 @@ authors: Maria Cunha pg54042 | Tomás Campinho pg57742
 
 - Dependências funcionais, chaves, campos constantes
 - Arranjar uma função de prettyprint textual 
-  - ? (yaml?) ou (wiki) ou até html
+  - ? (yaml?) ou (wiki) ou até html [escolheu-se yaml]
   - ? basead num (yaml/estrutura python) de configuração
   - simplificar 
   - agregar alguns campos numa notação mais legível
