@@ -1,6 +1,7 @@
 import yaml
 import re
 from sickle import Sickle
+from langcodes import Language
 
 # OAI-PMH endpoint: Famalicão (Alberto Sampaio)
 endpoint = "https://www.arquivoalbertosampaio.org/OAI-PMH/"
@@ -30,6 +31,29 @@ for i, registo in enumerate(registos, start=1):
 save_to_file()
 print("Concluído. Todos os dados encontram-se no ficheiro 'dados_brutos.yaml'.")
 
+from langcodes import Language
+
+def get_language_name(lang_code):
+    """
+    Converte códigos de idioma para nomes completos de forma robusta:
+    - 'por' → 'Portuguese'
+    - ['por'] → 'Portuguese'
+    - 'pt' → 'Portuguese'
+    - 'glg' → 'Galician'
+    - Valores inválidos retornam o original
+    """
+    if isinstance(lang_code, list):
+        lang_code = lang_code[0] if lang_code else ''
+    
+    if not lang_code:
+        return ''
+    
+    try:
+        lang = Language.get(str(lang_code))  # Converte para string para segurança
+        return lang.display_name() if lang.is_valid() else lang_code
+    except:
+        return lang_code
+
 
 def pretty_print(registo, output_format='text', config=None, registo_num=None):
     # função para dar print (pretty) em html, wiki e yaml
@@ -39,7 +63,7 @@ def pretty_print(registo, output_format='text', config=None, registo_num=None):
             'date': {'prefix': 'Date: ', 'format': '{value[0]} - {value[1]}'},
             'format': {'prefix': 'Format: ', 'format': '{value}'},
             'identifier': {'prefix': 'ID: ', 'format': '{value[0]}'},
-            'language': {'prefix': 'Language: ', 'format': '{value[0]}'},
+            'language': {'prefix': 'Language: ', 'format': '{value}'},
             'publisher': {'prefix': 'Publisher: ', 'format': '{value[0]}'},
             'relation': {'prefix': 'Relation: ', 'format': '{value[0]}'},
             'subject': {'prefix': 'Subject: ', 'format': '{value[0]}'},
@@ -48,14 +72,23 @@ def pretty_print(registo, output_format='text', config=None, registo_num=None):
         }
 
     def format_field(field, value):
-        """Handle multi-value fields and missing data"""
         if not value:
             return ""
+        
         field_config = config.get(field, config['default'])
+        
+        if field == 'language':
+            value = get_language_name(value)
+        
+        # Se for uma lista, junta os elementos corretamente, garantindo que não é uma string acidentalmente tratada como lista
+        if field =='title' or field == 'format':
+            value = ", ".join(value)
+        
         try:
             return field_config['format'].format(value=value)
         except (IndexError, KeyError):
-            return str(value)  # Fallback for malformed data
+            return str(value)  # Fallback para dados malformados
+
 
     if output_format == 'html':
         output = ['<div class="registo">']
