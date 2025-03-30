@@ -1,6 +1,7 @@
 ---
 title: Trabalho Prático 1
 subtitle: SPLN 24-25, mestrado Informática
+authors: Maria Cunha pg54042 | Tomás Campinho pg57742
 ---
 
 # 1- Descarregar o arquivo (usando OAI-PMH)
