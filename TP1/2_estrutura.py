@@ -23,9 +23,11 @@ def parse_record_to_dict(record_xml):
     def get_dc(tag):
         return [e.text.strip() for e in metadata.findall(f'dc:{tag}', ns)]
 
-    data = get_dc('date')
-    date_inicio = data[0] if len(data) > 0 else None
-    date_fim = data[1] if len(data) > 1 else None
+    data_raw = get_dc('date')
+    data = simplify_date(data_raw)
+    date_inicio = data['inicio']
+    date_fim = data['fim']
+    certeza_data = data['certeza']
 
     record = {
         'id': identifier,
@@ -33,6 +35,7 @@ def parse_record_to_dict(record_xml):
         'datas': {
             'inicio': date_inicio,
             'fim': date_fim,
+            'certeza': certeza_data
         },
         'editor': get_dc('publisher')[0] if get_dc('publisher') else None,
         'assunto': get_dc('subject')[0] if get_dc('subject') else None,
@@ -44,18 +47,32 @@ def parse_record_to_dict(record_xml):
         'colecoes': sets,
     }
     return record
+
+def simplify_date(date_values):
+    if not date_values:
+        return {'inicio': None, 'fim': None, 'certeza': 'desconhecida'}
     
+    # Handle cases where date might be a single year or range
+    if len(date_values) == 1:
+        date_str = date_values[0]
+        if '-' in date_str:
+            start, end = date_str.split('-')[:2]
+            return {'inicio': start.strip(), 'fim': end.strip(), 'certeza': 'intervalo'}
+        else:
+            return {'inicio': date_str.strip(), 'fim': date_str.strip(), 'certeza': 'exata'}
+    else:
+        return {'inicio': date_values[0].strip(), 'fim': date_values[-1].strip(), 'certeza': 'intervalo'}
+     
+
 def save_records_yaml():
     os.makedirs("records_yaml", exist_ok=True)
-    for i in range(0,101):
+    for i in range(0, 101):
         with open(f"records_yaml/record_{i}.yaml", "w", encoding="utf-8") as f:
             xml = open(f"records/record_{i}.xml", "r", encoding="utf-8").read()
             r = parse_record_to_dict(xml)
             f.write(yaml.dump(r, allow_unicode=True, sort_keys=False))
             print(f"Registo {i} convertido e guardado em YAML.")
-     
-            
+
+
 if __name__ == "__main__":
     save_records_yaml()
-
-    
