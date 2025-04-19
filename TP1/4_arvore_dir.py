@@ -160,32 +160,20 @@ def generate_html_tree_with_links(nodes: Dict[str, ArchivalNode], html_output: s
     with open(html_output, "w", encoding="utf-8") as f:
         f.write("\n".join(html_lines))
 
-def generate_wiki_tree(nodes: Dict[str, ArchivalNode], wiki_output: str, record_dir: str):
+def generate_wiki_tree(nodes: Dict[str, ArchivalNode], wiki_output: str):
     root_nodes = [n for n in nodes.values() if n.parent_id not in nodes]
 
-    def build_wiki(node: ArchivalNode) -> str:
-        filename = None
-        for fname in os.listdir(record_dir):
-            if fname.endswith(".yaml"):
-                path = os.path.join(record_dir, fname)
-                with open(path, encoding="utf-8") as f:
-                    data = yaml.safe_load(f)
-                    if node.full_id in data.get("identificadores", []):
-                        filename = fname
-                        break
-
-        label = f"{node.id}-{node.tipo}-{node.title}".replace("/", "_")
-        if filename:
-            label = f'[{label}](../{record_dir}/{filename})'
-
-        wiki = [f"- {label}"]
+    def build_wiki(node: ArchivalNode, level: int = 0) -> str:
+        # Indenta conforme o nível da árvore
+        indentation = '    ' * level
+        wiki = [f"{indentation}* {node.id} - {node.tipo} - {node.title}"]  # Sem links
         if node.children:
             for child in sorted(node.children, key=lambda x: x.id):
-                wiki.append(build_wiki(child))
+                wiki.append(build_wiki(child, level + 1))  # Recursão com nível aumentado
         return '\n'.join(wiki)
 
     wiki_lines = [
-        "# Árvore Arquivística\n",
+        "== Árvore Arquivística ==\n",
         "Lista de todos os nós e seus identificadores:\n"
     ]
 
@@ -196,27 +184,6 @@ def generate_wiki_tree(nodes: Dict[str, ArchivalNode], wiki_output: str, record_
     with open(wiki_output, "w", encoding="utf-8") as f:
         f.write("\n".join(wiki_lines))
 
-
-def generate_wiki_tree(nodes: Dict[str, ArchivalNode], wiki_output: str):
-    root_nodes = [n for n in nodes.values() if n.parent_id not in nodes]
-
-    def build_wiki(node: ArchivalNode) -> str:
-        wiki = [f"- {node.id} - {node.tipo} - {node.title}"]  # Sem links
-        if node.children:
-            for child in sorted(node.children, key=lambda x: x.id):
-                wiki.append(build_wiki(child))
-        return '\n'.join(wiki)
-
-    wiki_lines = [
-        "# Árvore Arquivística\n"
-    ]
-
-    for root in sorted(root_nodes, key=lambda x: x.id):
-        wiki_lines.append(build_wiki(root))
-
-    os.makedirs(os.path.dirname(wiki_output), exist_ok=True)
-    with open(wiki_output, "w", encoding="utf-8") as f:
-        f.write("\n".join(wiki_lines))
 
 def save_output(content: str, filename: str):
     """Save output to file"""
@@ -238,14 +205,12 @@ if __name__ == "__main__":
     # Gerar HTML com links
     generate_html_tree_with_links(nodes, "output/html_arvore/index.html", yaml_dir)
 
-    # Gerar Wiki com links
-    generate_wiki_tree(nodes, "output/wiki_arvore/com_links/README.md", yaml_dir)
-
-    # Gerar Wiki sem links
-    generate_wiki_tree(nodes, "output/wiki_arvore/README.md")
+    # Gerar Wiki
+    generate_wiki_tree(nodes, "output/wiki_arvore/wiki.txt")
 
 
     print("Operações concluídas:")
     print("- Árvore textual gerada em: output/archival_tree.txt")
-    print("- Estrutura de diretórios criada em: output/arvore_diretorios/")
+    print("- Estrutura criada em: output/arvore_diretorios/")
     print("- HTML com links gerado em: output/html_arvore/index.html")
+    print("- Wiki gerada em: output/wiki_arvore/wiki.txt")
