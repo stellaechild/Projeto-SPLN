@@ -1,3 +1,4 @@
+from asyncio import sleep
 import yaml
 import re
 from sickle import Sickle
@@ -20,12 +21,12 @@ registos = sickle.ListRecords(metadataPrefix='oai_dc')
 
 for i, registo in enumerate(registos, start=1):
     dados["Registos"].append(dict(registo)) 
-
-    if i % 10 == 0:  # Salvando a cada 10 registos e parando quando chegam a 500 (para eficiência nos testes)
+    f=i
+    if f == 500:  # Salvando a cada 500 registos e (adormece durante 5 segundos e retoma)
         save_to_file()
         print(f"{i} registos...")
-    if i == 500 : 
-        break
+        f=0
+        sleep(5)
 
 # Caso tivesse um ficheiro em falta para salvar
 save_to_file()

@@ -53,8 +53,8 @@ def save_records_yaml():
             r = parse_record_to_dict(xml)
             f.write(yaml.dump(r, allow_unicode=True, sort_keys=False))
             print(f"Registo {i} convertido e guardado em YAML.")
+     
             
-
 if __name__ == "__main__":
     save_records_yaml()
 
