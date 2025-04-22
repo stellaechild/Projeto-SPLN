@@ -60,13 +60,20 @@ def criar_db():
     c = conn.cursor()
 
     c.execute("""
-        CREATE VIRTUAL TABLE documentos USING fts5(
-            titulo, assunto, tipo, formato,
-            codigo UNINDEXED,
-            data_inicio UNINDEXED, data_fim UNINDEXED,
-            url UNINDEXED, relacao UNINDEXED
+        CREATE VIRTUAL TABLE documentos_fts USING fts5(
+        titulo, assunto, tipo, formato, texto
         );
     """)
+    
+    c.execute("""
+              CREATE TABLE documentos (
+            rowid INTEGER PRIMARY KEY,
+            codigo TEXT,
+            data_inicio TEXT,
+            data_fim TEXT,
+            url TEXT,
+            relacao TEXT);
+        """)
     conn.commit()
     conn.close()
 
@@ -77,37 +84,52 @@ def inserir_dados():
     for xml_file in glob.glob(os.path.join(RECORDS_DIR, "*.xml")):
         dados = extrair_dados(xml_file)
         if dados:
+            # Inserir na FTS
             c.execute("""
-                INSERT INTO documentos VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO documentos_fts (titulo, assunto, tipo, formato)
+                VALUES (?, ?, ?, ?)
             """, (
-                dados["titulo"], dados["assunto"], dados["tipo"], dados["formato"],
-                dados["codigo"], dados["data_inicio"], dados["data_fim"],
-                dados["url"], dados["relacao"]
+                dados["titulo"], dados["assunto"], dados["tipo"], dados["formato"]
+            ))
+
+            # Obter o rowid que foi usado automaticamente
+            rowid = c.lastrowid
+
+            # Inserir na tabela auxiliar
+            c.execute("""
+                INSERT INTO documentos (rowid, codigo, data_inicio, data_fim, url, relacao)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                rowid, dados["codigo"], dados["data_inicio"],
+                dados["data_fim"], dados["url"], dados["relacao"]
             ))
 
     conn.commit()
     conn.close()
+
     
 def procurar(termo):
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     query = """
-        SELECT titulo, codigo, url, snippet(documentos, 0, '<b>', '</b>', '...', 40)
-        FROM documentos
-        WHERE documentos MATCH ?
-        LIMIT 10;
+        SELECT fts.titulo, d.codigo, d.url
+        FROM documentos_fts fts
+        JOIN documentos d ON fts.rowid = d.rowid
+        WHERE documentos_fts MATCH ?
     """
+
     for row in c.execute(query, (termo,)):
-        titulo, codigo, url, snippet = row
-        print(f"\n {titulo}\n {codigo}\n {url}\n {snippet}\n")
+        titulo, codigo, url = row
+        print(f"\nTítulo: {titulo}\nCódigo: {codigo}\nURL: {url}\n")
 
     conn.close()
 
+
 if __name__ == "__main__":
     # correr uma vez para inserir os dados
-    # criar_db()
-    # inserir_dados()
+    #criar_db()
+    #inserir_dados()
 
     # python3 6_procura.py <termo>")
     

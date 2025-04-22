@@ -59,8 +59,15 @@ def ensure_node_chain(full_id):
                     tipo = 'SSC'  
                 elif i == 4:
                     tipo = 'SR'  
-                elif i >= 5:
+                elif i == 5:
                     tipo = 'UI'
+                elif i == 6:
+                    if node_id and '-' in node_id:
+                        print(node_id)
+                        tipo = 'DC'
+                    else:
+                        tipo = 'D'
+                    
                     
             parent_id = "/".join(parts[:i-1]) if i > 1 else None
             nodes[sub_id] = Node(

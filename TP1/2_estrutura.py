@@ -66,7 +66,7 @@ def simplify_date(date_values):
 
 def save_records_yaml():
     os.makedirs("records_yaml", exist_ok=True)
-    for i in range(0, 101):
+    for i in range(0, 30920):
         with open(f"records_yaml/record_{i}.yaml", "w", encoding="utf-8") as f:
             xml = open(f"records/record_{i}.xml", "r", encoding="utf-8").read()
             r = parse_record_to_dict(xml)

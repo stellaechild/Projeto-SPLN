@@ -3,7 +3,7 @@ import sqlite3
 import spacy
 from lxml import etree
 
-def extrair_campos(xml_path,nlp):
+def extrair_campos(xml_path, nlp):
     with open(xml_path, 'rb') as f:
         tree = etree.parse(f)
         ns = {
@@ -31,8 +31,8 @@ def extrair_campos(xml_path,nlp):
             'titulo': titulo,
             'assunto': assunto,
             'texto': texto,
-            'pessoas': ", ".join(pessoas),
-            'lugares': ", ".join(lugares)
+            'pessoas': ", ".join(sorted(pessoas)),
+            'lugares': ", ".join(sorted(lugares))
         }
 
 def indexar_ficheiros(cur, nlp):
@@ -45,12 +45,10 @@ def indexar_ficheiros(cur, nlp):
                 VALUES (?, ?, ?, ?, ?, ?)
             """, (dados['id'], dados['titulo'], dados['assunto'], dados['texto'], dados['pessoas'], dados['lugares']))
             
-             # Inserir pessoas
             for pessoa in dados['pessoas'].split(", "):
                 if pessoa:
                     cur.execute("INSERT INTO entidades (doc_id, nome, tipo) VALUES (?, ?, ?)",
                                 (dados['id'], pessoa, "pessoa"))
-            # Inserir lugares
             for lugar in dados['lugares'].split(", "):
                 if lugar:
                     cur.execute("INSERT INTO entidades (doc_id, nome, tipo) VALUES (?, ?, ?)",
@@ -60,15 +58,22 @@ def setup():
     nlp = spacy.load("pt_core_news_lg")
     conn = sqlite3.connect("arquivo.db")
     cur = conn.cursor()
-    return nlp, conn, cur
-
-def close_db(conn):
-    conn.commit()
-    conn.close()
     
-def indexar(cur, nlp):
-    # Criar tabela com FTS5
+    # Criar ou resetar as tabelas
+    cur.execute("DROP TABLE IF EXISTS documentos")
     cur.execute("DROP TABLE IF EXISTS entidades")
+
+    cur.execute("""
+        CREATE TABLE documentos (
+            id TEXT PRIMARY KEY,
+            titulo TEXT,
+            assunto TEXT,
+            texto TEXT,
+            pessoas TEXT,
+            lugares TEXT
+        )
+    """)
+    
     cur.execute("""
         CREATE TABLE entidades (
             doc_id TEXT,
@@ -76,33 +81,37 @@ def indexar(cur, nlp):
             tipo TEXT
         )
     """)
-    
-    indexar_ficheiros(cur,nlp)
-    print("Indexação concluída")
 
+    return nlp, conn, cur
+
+def close_db(conn):
+    conn.commit()
+    conn.close()
+    
+def indexar(cur, nlp):
+    indexar_ficheiros(cur, nlp)
+    print("Indexação concluída")
 
 def pesquisar(query, cur):
     res = cur.execute(query)
     for doc_id, titulo, pessoas, lugares in res:
-        print(f" Documento: {doc_id} - {titulo}")
+        print(f"Documento: {doc_id} - {titulo}")
         if pessoas:
             print(f"Pessoas: {pessoas}")
         if lugares:
             print(f"Lugares: {lugares}")
         print()
-    
-query = """
-        SELECT id, titulo, pessoas, lugares FROM documentos
-        WHERE pessoas != '' OR lugares != ''
-    """
 
 def main():
     nlp, conn, cur = setup()
     indexar(cur, nlp)
+
+    query = """
+        SELECT id, titulo, pessoas, lugares FROM documentos
+        WHERE pessoas != '' OR lugares != ''
+    """
     pesquisar(query, cur)
     close_db(conn)
 
 if __name__ == "__main__":
     main()
-    
-# pip install sqlite-utils

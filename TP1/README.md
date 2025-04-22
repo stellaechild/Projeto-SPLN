@@ -1,92 +1,65 @@
----
-title: Enunciado do Trabalho Prático 1
-subtitle: SPLN 24-25, mestrado Informática
-authors: Maria Cunha pg54042 | Tomás Campinho pg57742
----
+# Trabálho Prático 1: SPLN 24-25
 
-# 1- Descarregar o arquivo (usando OAI-PMH)
-
-- Criar uma script que descarreca o arquivo inteiro (ou parte)
-
-# 2- Estudar a estrutura do documento
-
-- Dependências funcionais, chaves, campos constantes
-- Arranjar uma função de prettyprint textual 
-  - ? (yaml?) ou (wiki) ou até html [escolheu-se yaml]
-  - ? basead num (yaml/estrutura python) de configuração
-  - simplificar 
-  - agregar alguns campos numa notação mais legível
-   data(inicio, fim, certeza)
-
-# 3- Calcular a árvore arquivistica de fundos
-
-- Usando os atributos `Parent` e eventualmente `RootParent`
-- cuidado pode haver né em falta (ex: chamar-lhe 777-fixme)
-- F   (fundo)
-- SC  (secção)
-- SSC (subsecção)
-- SR  (Série)
-- UI  (unidade de instalação)
-- D  DC  (documento, documento composto)
-
-# 4- Criar uma árvore de diretorias
-
-Exemplo:
-
+## 1.Descarregar o arquivo (usando OAI-PMH)
 ```
-31258-F-Arquivo Casa de Pindela
-    31259-SC-Luís de Carvalho e Beatriz de Almeida
-        31260-SSC-Luís de Carvalho e Beatriz Almeida
-            54460-SR-Documentos
-    31262-SC-Simão Pinheiro e Leonor Almeida e Helena Dias
-        31263-SSC-Simão Pinheiro e Leonor Almeida
-            54461-SR-Documentos
-        31265-SSC-Simão Pinheiro e Helena Dias
-            54462-SR-Documentos
-    31287-SC-João Machado Fagundes da Guerra Pinheiro e Figueira e Mariana Josefa de Castro
-        31288-SSC-João Machado Fagundes da Guerra Pinheiro e Figueira e Mariana Josefa de Castro
-            54469-SR-Documentos
-            98419-SR-Correspondência
-                98896-UI-Jerónimo Vaz Vieira
-                98903-UI-João Pereira de Sousa
-                98922-UI-António Vaz Vieira
-                99010-UI-António Francisco Valbom
+python3 1_descarregar.py
+```
+Descarrega os registos usando OAI-PMH (Open Archives Initiative Protocol for Metadata Harvesting) através do objeto sickle do url
+https://www.arquivoalbertosampaio.org/OAI-PMH/ em oai_dc que corresponde a um padrão simples e comum dos metadados.
+
+## 2.Estudar a estrutura do documento
+```
+python3 2_estrutura.py
+```
+Para cada registo, guarda os seguintes dados em yaml, agregando o campo de data (início, fim e certeza):
+```
+{'id': identifier,
+    'titulo': get_dc('title')[0] if get_dc('title') else None,
+    'datas': {
+        'inicio': date_inicio,
+        'fim': date_fim,
+        'certeza': certeza_data
+    },
+    'editor': get_dc('publisher')[0] if get_dc('publisher') else None,
+    'assunto': get_dc('subject')[0] if get_dc('subject') else None,
+    'tipo': get_dc('type')[0] if get_dc('type') else None,
+    'formato': get_dc('format')[0] if get_dc('format') else None,
+    'lingua': get_dc('language')[0] if get_dc('language') else None,
+    'identificadores': get_dc('identifier'),
+    'thumbnail': get_dc('relation')[0] if get_dc('relation') else None,
+    'colecoes': sets
+}
 ```
 
-# 4a- Preencher um wiki com esta informação
+## 3. Calcular a árvore arquivistica de fundos
+```
+python3 3_arvore_arq.py -> archival_tree.txt
+```
+Busca nos registos_yaml o segundo elemento do campo 'identificadores', por exemplo: PT/MVNF/AMAS/AS-AS/C-A-B/000001, cria um dicionário com os nodos, para este caso, que correspondem às diretorias e documentos existentes nos registos, que for fim imprime a estrutura obtida.
 
-Ex zim-wiki (wiki desktop)
+```
+F:PT 
+SC:PT/MVNF
+SSC:PT/MVNF/AMAS
+SR:PT/MVNF/AMAS/AS-AS
+UI:PT/MVNF/AMAS/AS-AS/C-A-B
+D:PT/MVNF/AMAS/AS-AS/C-A-B/000001
+```
 
-# 4b- Criar HTML estático
+## 4. Criar uma árvore de diretorias
 
-- html hiperligado (árvore de fundos + documentos + ligação ao arquivo original)
+## 6. Script de procura
+Primeiro passo: Criar a base de dados em sqlite e inserir os dados.
+Segundo passo:
+```
+python3 6_procura.py <termo>
+```
+Procura os artigos que contenham o termo através do seu título e do seu conteúdo, mostrando todos os resultdos obtidos.
 
+## 7. Entidades mencionadas
+```
+python3 7_entidades.py > entidades.txt
+```
+Guarda no ficheiro as pessoas, lugares e profissão de cada registo.
 
-# 6- Script de procura
-
-várias hipoteses. Script python usando
-
-- 6a usando rg
-- criar indice glimpse
-- sqlite + freetext search
-
-# 7- Entidades mencionadas
-
-- Criar um indice de entidades mencionadas
-  - pessoas (e sua profissão / título)
-  - lugares, casas
-
-# 8- Focar em BiogHist e ScopeContent (outros?)
-
-- tabela de Pessoas e suas biografias
-
-# 9- Explorar thesaurus/indices (ver campo "terms")
-
-- estrutura classificativa
-
-# 10- Arranjar um tipo para cada nó
-
-- formalizar (parcialmente) o tipo dos documentos, séries, DC, etc
-- fotografia, carta, livro, seq(carta) 
-- set(registo) 
-
+## 9. Explorar thesaurus/indices (ver campo "terms")
