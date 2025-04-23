@@ -1,6 +1,6 @@
 ---
 UC: SPLN 24-25, mestrado Informática
-autores: Maria Cunha pg54042 | Tomás Campinho pg57742 | Lingyun Xhu pg57885
+autores: Maria Cunha pg54042 | Tomás Campinho pg57742 | Lingyun Zhu pg57885
 ---
 
 # Trabalho Prático 1: SPLN 24-25
