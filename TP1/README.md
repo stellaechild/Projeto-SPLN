@@ -1,13 +1,13 @@
 # Trabálho Prático 1: SPLN 24-25
 
-## 1.Descarregar o arquivo (usando OAI-PMH)
+## 1. Descarregar o arquivo (usando OAI-PMH)
 ```
 python3 1_descarregar.py
 ```
 Descarrega os registos usando OAI-PMH (Open Archives Initiative Protocol for Metadata Harvesting) através do objeto sickle do url
 https://www.arquivoalbertosampaio.org/OAI-PMH/ em oai_dc que corresponde a um padrão simples e comum dos metadados.
 
-## 2.Estudar a estrutura do documento
+## 2. Estudar a estrutura do documento
 ```
 python3 2_estrutura.py
 ```
@@ -47,6 +47,13 @@ D:PT/MVNF/AMAS/AS-AS/C-A-B/000001
 ```
 
 ## 4. Criar uma árvore de diretorias
+```
+python3 4_arvore_dir.py
+```
+Gera uma estrutura de diretorias baseada na hierarquia arquivística dos registos. Para cada nó, cria uma pasta com um arquivo `README.md` contendo informações sobre o nó:
+- Cria um arquivo de texto com a árvore arquivística (`output/archival_tree.txt`).
+- Cria uma versão html da árvore com links para os registos yaml (`output/html_arvore/index.html`).
+- Cria uma versão em formato Wiki (`output/wiki_arvore/wiki.txt`).
 
 ## 6. Script de procura
 Primeiro passo: Criar a base de dados em sqlite e inserir os dados.
@@ -62,4 +69,8 @@ python3 7_entidades.py > entidades.txt
 ```
 Guarda no ficheiro as pessoas, lugares e profissão de cada registo.
 
-## 9. Explorar thesaurus/indices (ver campo "terms")
+## 9. Explorar thesaurus/indices
+```
+python3 9_thesaurus.py
+```
+Gera um arquivo html (`thesaurus.html`) que organiza os registos por categorias (baseadas no campo `type`) e exibe os termos associados a cada título. Cada categoria contém uma lista de títulos e os termos relacionados, permitindo explorar os dados de forma categorizada.
