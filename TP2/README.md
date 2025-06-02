@@ -22,3 +22,7 @@ Após a recolha, os dados são preparados e estruturados para tarefas de anális
 ```bash
 python process_data.py
 ```
+
+3 . train_model 
+4. similarity
+5. como fazer prompts 
