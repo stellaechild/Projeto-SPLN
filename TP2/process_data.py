@@ -112,7 +112,7 @@ class DataProcessor:
             
         return score
     
-    def create_training_collection(self, documents: List[Dict], sample_size: int = 1000) -> List[Tuple[str, str, float]]:
+    def create_training_collection(self, documents: List[Dict], sample_size: int = 1000) -> List[List]:
         """Create training collection of document pairs with similarity scores."""
         training_data = []
         
@@ -128,7 +128,8 @@ class DataProcessor:
             
             if abstract1 and abstract2: 
                 sim_score = self.guess_similarity(doc1, doc2)
-                training_data.append((abstract1, abstract2, sim_score))
+                # Ensure consistent data structure: always use a list with two elements and a score
+                training_data.append([abstract1, abstract2, sim_score])
                 
         # Saving training data
         train_file = self.data_dir / "training_data.json"
@@ -141,4 +142,4 @@ if __name__ == "__main__":
     processor = DataProcessor()
     documents = processor.xml_to_json()
     training_data = processor.create_training_collection(documents)
-    print(f"Created training collection with {len(training_data)} document pairs") 
+    print(f"Created training collection with {len(training_data)} document pairs")
