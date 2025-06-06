@@ -38,7 +38,7 @@ Isto irá recolher dados do RepositoriUM para o diretório `data`.
 ```bash
 python process_data.py
 ```
-git sta
+
 Isto irá:
 - Converter dados XML para formato JSON
 - Limpar e normalizar metadados
