@@ -22,7 +22,7 @@ date: Junho 2025
 - `collect_data.py`: Recolhe dados do RepositoriUM usando OAI-PMH
 - `process_data.py`: Processa dados XML e cria coleções de treino
 - `sentence_similarity.ipynb`: Notebook para treinar e utilizar o modelo de similaridade
-
+- `information_retireval.py`: Módulo que utiliza o modelo treinado para calcular a similaridade
 ## Utilização
 
 ### 1. Recolher Dados
@@ -83,3 +83,13 @@ Para utilizar o notebook `sentence_similarity.ipynb` no Google Colab, siga estes
 
 4. Execute o notebook:
    - Execute as células sequencialmente para evitar problemas de dependência
+
+## Utilização do módulo
+
+Para poder começar a usar o modelo treinado para calcular a similaridade dos abstratos é necessário instalar o módulo primeiro.
+
+1. Instalar com o comando `pip install .` na diretoria módulo, onde se situa o ficheiro `pyproject.toml`
+
+2. Executar com `sim documento1.txt documento2.txt ... documenton.txt`
+
+3. Para listar os top n documentos, passar a flag `-n`, por exemplo, `sim documento1.txt documento2.txt ... documenton.txt`
