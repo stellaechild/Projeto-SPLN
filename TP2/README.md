@@ -56,7 +56,7 @@ Abra e execute o `sentence_similarity.ipynb` para:
 
 Para poder começar a usar o modelo treinado para calcular a similaridade dos abstratos é necessário instalar o módulo primeiro.
 
-1. Instalar com o comando `pip install .` na diretoria módulo, onde se situa o ficheiro `pyproject.toml`
+1. Instalar com o comando `pip install .` na diretoria TP2, onde contém o ficheiro `pyproject.toml`
 
 2. Executar com `sim documento1.txt documento2.txt ... documenton.txt`
 

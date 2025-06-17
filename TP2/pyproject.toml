@@ -7,12 +7,15 @@ authors = [
     { name = "Lingyun Zhu", email = "pg57885@alunos.uminho.com" }
 ]
 description = "Este módulo tem como função calcular a similaridade dos documentos através de um modelo treinado com dados do RepositoriUM."
-license = "MIT"  # Corrigido: SPDX string simples em vez de tabela
-dependencies = [ "jjcli"]
-
+license = "MIT"
+dependencies = ["jjcli"]
 
 [project.scripts]
-sim = "information_retrieval:main"
+sim = "information_retrieval.retrieval:main"
 
 [tool.setuptools]
-py-modules = ["information_retrieval"]
+packages = ["information_retrieval"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+information_retrieval = ["output/repositorium-similarity-model/**/*"]

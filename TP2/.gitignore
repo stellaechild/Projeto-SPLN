@@ -1,3 +1,5 @@
 /information_retrieval/output/
 /information_retrieval/build/
-/information_retrieval/information_retrieval.egg-info/
+/information_retrieval.egg-info/
+/build/
+/chechpoints/

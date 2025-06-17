@@ -1,12 +1,16 @@
 from sentence_transformers import SentenceTransformer, util
 from jjcli import clfilter
+from pathlib import Path
+from importlib import resources
 
 
 class SimilarityCalculator:
-    def __init__(self, model_path='output/repositorium-similarity-model'):
-        self.model = SentenceTransformer(model_path)
+    def __init__(self):
+        with resources.path("information_retrieval.output", "repositorium-similarity-model") as model_path:
+            self.model = SentenceTransformer(str(model_path))
 
     def compute_pairwise_similarity(self, texts):
+
         if len(texts) < 2:
             raise ValueError("É necessário pelo menos dois textos para calcular similaridade.")
 
@@ -16,6 +20,7 @@ class SimilarityCalculator:
         return similarity_matrix
 
     def most_similar_pairs(self, texts, filenames, top_n=None):
+  
         similarity_matrix = self.compute_pairwise_similarity(texts)
         pairs = []
 
@@ -29,7 +34,7 @@ class SimilarityCalculator:
 
 
 def main():
-    cl = clfilter(opt="n:s:", man=__doc__)
+    cl = clfilter(opt="n:", man=__doc__)
 
     abstracts = {}
 
